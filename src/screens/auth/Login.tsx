@@ -6,14 +6,17 @@ import {
   Text,
   TextInput,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FONTS, SIZES, COLORS} from '../../constants';
 import {Error} from '../../components';
 
-const Login = (): JSX.Element => {
-  const navigation = useNavigation();
+type LoginProps = {
+  navigation: NavigationProp<any>;
+};
+
+const Login = ({navigation}: LoginProps): JSX.Element => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<boolean>(false);

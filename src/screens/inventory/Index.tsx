@@ -7,7 +7,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS, FONTS, SIZES} from '../../constants';
 import {Header, Categories, Item} from '../../components';
@@ -19,17 +19,20 @@ interface InventoryItem {
   quantity: number;
 }
 
-const Dashboard = (): JSX.Element => {
-  const navigation = useNavigation();
+type InventoryProps = {
+  navigation: NavigationProp<any>;
+};
+
+const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
   const [items, setItems] = useState<InventoryItem[]>([]);
-  const [userData, setUserData] = useState<string | null>(null);
+  const [userData, setUserData] = useState<string>('');
 
   const fetchCurrentUser = async (): Promise<void> => {
     const userData = await AsyncStorage.getItem('userObject');
     if (userData !== null) {
       setUserData(userData);
     } else {
-      setUserData(null);
+      setUserData('');
     }
   };
 
