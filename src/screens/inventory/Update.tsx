@@ -5,9 +5,14 @@ import {
   View,
   Text,
   TextInput,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {NavigationProp, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {FONTS, SIZES, COLORS} from '../../constants';
 
@@ -39,16 +44,27 @@ const Update = (): JSX.Element => {
   }, []);
 
   const handleUpdateItem = async () => {
-    const newItem: InventoryItem = {
-      id: Math.random().toString(),
-      name,
-      quantity: parseInt(quantity),
-    };
-    setItems([...items, newItem]);
-    await AsyncStorage.setItem(
-      'inventory',
-      JSON.stringify([...items, newItem]),
+    const isItemNameExist = items.some(
+      item => item.name === name && item.id !== route?.item?.id,
     );
+    if (isItemNameExist) {
+      return Alert.alert('Item name must be unique');
+    }
+
+    const updatedItems = items.map(item => {
+      if (item.id === route?.item?.id) {
+        return {
+          ...item,
+          name,
+          quantity: parseInt(quantity),
+        };
+      } else {
+        return item;
+      }
+    });
+
+    setItems(updatedItems);
+    await AsyncStorage.setItem('inventory', JSON.stringify(updatedItems));
     navigation.replace('Inventory');
   };
 
@@ -79,8 +95,16 @@ const Update = (): JSX.Element => {
               placeholder="Enter item name"
               placeholderTextColor={COLORS.gray}
               keyboardType="default"
-              value={route?.item?.name}
-              onChangeText={setName}
+              value={name}
+              onChangeText={newName => {
+                const updatedItem = {...route?.item, name: newName};
+                setName(newName);
+                setItems(
+                  items.map(item =>
+                    item.id === updatedItem.id ? updatedItem : item,
+                  ),
+                );
+              }}
             />
           </View>
         </View>

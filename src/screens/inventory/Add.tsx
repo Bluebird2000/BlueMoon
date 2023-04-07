@@ -5,6 +5,7 @@ import {
   View,
   Text,
   TextInput,
+  Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
@@ -34,6 +35,12 @@ const Add: React.FC = () => {
   }, []);
 
   const handleAddItem = async () => {
+
+    const isItemNameExist = items.some(item => item.name === name);
+    if (isItemNameExist) {
+      return Alert.alert('Item name must be unique');
+    }
+
     const newItem: InventoryItem = {
       id: Math.random().toString(),
       name,
