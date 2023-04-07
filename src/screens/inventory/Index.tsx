@@ -45,6 +45,11 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
     }
   };
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('auth');
+    navigation.navigate('Auth')
+  }
+
   useEffect(() => {
     loadItems();
     fetchCurrentUser();
@@ -60,7 +65,7 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header user={userData && userData} />
+      <Header user={userData && userData} onPress={handleLogout}/>
       <ScrollView>
         <View style={styles.body}>
           <View style={styles.wrapper}>
