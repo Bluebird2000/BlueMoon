@@ -7,7 +7,7 @@ import {
   TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {NavigationProp, useNavigation, useRoute} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {FONTS, SIZES, COLORS} from '../../constants';
 
@@ -17,11 +17,13 @@ interface InventoryItem {
   quantity: number;
 }
 
-const Update = (): JSX.Element => {
+type UpdateInventoryProps = {
+  navigation: NavigationProp<any>;
+};
 
-  const route = useRoute().params;
-  console.log('...route', route)
+const Update = (): JSX.Element => {
   const navigation = useNavigation();
+  const route = useRoute().params;
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState<number>(0);
@@ -43,16 +45,19 @@ const Update = (): JSX.Element => {
       quantity: parseInt(quantity),
     };
     setItems([...items, newItem]);
-    await AsyncStorage.setItem('inventory', JSON.stringify([...items, newItem]));
+    await AsyncStorage.setItem(
+      'inventory',
+      JSON.stringify([...items, newItem]),
+    );
     navigation.replace('Inventory');
   };
 
-  const handleDeleteItem = async (id: string) => {
+  const handleDeleteItem = async (id: string): Promise<void> => {
     const newItems = items.filter(item => item.id !== id);
     setItems(newItems);
+    await AsyncStorage.setItem('inventory', JSON.stringify(newItems));
     navigation.replace('Inventory');
   };
-  
 
   return (
     <View style={styles.body}>
@@ -86,7 +91,9 @@ const Update = (): JSX.Element => {
         </View>
 
         <View style={styles.inputContainer}>
-          <TouchableOpacity style={{ ...styles.button, opacity: .3}} onPress={() => handleDeleteItem(route?.item.id)}>
+          <TouchableOpacity
+            style={{...styles.button, opacity: 0.3}}
+            onPress={() => handleDeleteItem(route?.item.id)}>
             <Text style={styles.btnLabel}>Delete Item</Text>
           </TouchableOpacity>
         </View>
