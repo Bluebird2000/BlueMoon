@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS, FONTS, SIZES} from '../../constants';
 import {Header, Categories, Item} from '../../components';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import { AuthContext } from '../../context/AuthContext';
 
 interface InventoryItem {
   id: string;
@@ -26,16 +27,7 @@ type InventoryProps = {
 
 const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
   const [items, setItems] = useState<InventoryItem[]>([]);
-  const [userData, setUserData] = useState<string>('');
-
-  const fetchCurrentUser = async (): Promise<void> => {
-    const userData = await AsyncStorage.getItem('userObject');
-    if (userData !== null) {
-      setUserData(userData);
-    } else {
-      setUserData('');
-    }
-  };
+  const { userObject, signOut } = useContext(AuthContext);
 
   const loadItems = async (): Promise<void> => {
     const storedItems = await AsyncStorage.getItem('inventory');
@@ -47,13 +39,12 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('auth');
+    signOut();
     navigation.navigate('Auth')
   }
 
   useEffect(() => {
     loadItems();
-    fetchCurrentUser();
   }, []);
 
   const renderItem = ({item}: {item: InventoryItem}): JSX.Element => (
@@ -67,7 +58,7 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header user={userData && userData} onPress={handleLogout}/>
+      <Header user={userObject} onPress={handleLogout}/>
       <ScrollView>
         <View style={styles.body}>
           <View style={styles.wrapper}>

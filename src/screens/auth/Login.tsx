@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {NavigationProp} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AuthContext} from '../../context/AuthContext';
 import {FONTS, SIZES, COLORS} from '../../constants';
 import {Error} from '../../components';
 
@@ -21,18 +21,15 @@ const Login = ({navigation}: LoginProps): JSX.Element => {
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
 
+  const {signIn, isAuthenticated} = useContext(AuthContext);
+
   useEffect(() => {
     checkAuthentication();
-  }, []);
+  }, [isAuthenticated]);
 
-  const checkAuthentication = async (): Promise<void> => {
-    try {
-      const auth = await AsyncStorage.getItem('auth');
-      if (auth !== null) {
-        navigation.navigate('Inventory');
-      }
-    } catch (e) {
-      console.error(e);
+  const checkAuthentication = () => {
+    if (isAuthenticated) {
+      navigation.navigate('Inventory');
     }
   };
 
@@ -40,8 +37,7 @@ const Login = ({navigation}: LoginProps): JSX.Element => {
     setError(false);
     if (email !== '' && password !== '') {
       try {
-        await AsyncStorage.setItem('auth', 'true');
-        await AsyncStorage.setItem('userObject', email);
+        await signIn(email, password);
         navigation.navigate('Inventory');
       } catch (error) {
         setError(true);
