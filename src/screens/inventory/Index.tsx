@@ -63,22 +63,35 @@ const Dashboard = ({navigation}: InventoryProps): JSX.Element => {
         <View style={styles.body}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <View style={styles.section}>
-              <Text style={{ ...styles.header, color: COLORS.white }}>Categories</Text>
-              <Text style={{ ...styles.header, color: COLORS.white, fontSize: 18 }}>4</Text>
+              <Text style={{...styles.header, color: COLORS.white}}>
+                Categories
+              </Text>
+              <Text
+                style={{...styles.header, color: COLORS.white, fontSize: 18}}>
+                4
+              </Text>
             </View>
             <View style={{...styles.section, backgroundColor: '#49A2E4'}}>
-              <Text style={{ ...styles.header, color: COLORS.white }}>Items</Text>
-              <Text style={{ ...styles.header, color: COLORS.white, fontWeight: '700', fontSize: 18  }}>{items.length}</Text>
+              <Text style={{...styles.header, color: COLORS.white}}>Items</Text>
+              <Text
+                style={{
+                  ...styles.header,
+                  color: COLORS.white,
+                  fontWeight: '700',
+                  fontSize: 18,
+                }}>
+                {items.length}
+              </Text>
             </View>
           </View>
           <View style={styles.wrapper}>
             <Text style={styles.header}>Categories</Text>
           </View>
           <View style={styles.categoriesSection}>
-            <Categories title="Resisitor" />
-            <Categories title="Capacitor" />
-            <Categories title="Transistors" />
-            <Categories title="Mosfet" />
+            <Categories title="Category" />
+            <Categories title="Category" />
+            <Categories title="Category" />
+            <Categories title="Category" />
           </View>
           <View style={styles.itemList}>
             <View

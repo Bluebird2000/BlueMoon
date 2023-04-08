@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     borderColor: '#EFF3F9',
     borderWidth: 1,
     borderRadius: SIZES.radius,
+    backgroundColor: '#EFF3F9'
   },
   imageWrap: {height: 25, width: 25},
   cardIcon: {

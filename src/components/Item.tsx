@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#EFF3F9'
   },
   cardIcon: {
     width: 15,
