@@ -6,6 +6,8 @@ import {
   Text,
   TextInput,
   Alert,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -24,7 +26,6 @@ interface InventoryItem {
   description: string;
 }
 
-
 const Update = (): JSX.Element => {
   const navigation = useNavigation();
   const route = useRoute().params;
@@ -32,8 +33,9 @@ const Update = (): JSX.Element => {
   const [name, setName] = useState(route.item.name);
   const [totalStock, setTotalStock] = useState<number>(route.item.totalStock);
   const [price, setPrice] = useState<number>(route.item.price);
-  const [description, setDescription] = useState<string>(route.item.description);
-
+  const [description, setDescription] = useState<string>(
+    route.item.description,
+  );
 
   const loadItems = async (): Promise<void> => {
     const storedItems = await AsyncStorage.getItem('inventory');
@@ -69,7 +71,9 @@ const Update = (): JSX.Element => {
     }
 
     if (!description || description.trim().split(' ').length < 3) {
-      return Alert.alert('Description is required and must have at least three words');
+      return Alert.alert(
+        'Description is required and must have at least three words',
+      );
     }
 
     const updatedItems = items.map(item => {
@@ -92,117 +96,146 @@ const Update = (): JSX.Element => {
   };
 
   const handleDeleteItem = async (id: string): Promise<void> => {
-    const newItems = items.filter(item => item.id !== id);
-    setItems(newItems);
-    await AsyncStorage.setItem('inventory', JSON.stringify(newItems));
-    navigation.replace('Inventory');
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this item?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            const newItems = items.filter(item => item.id !== id);
+            setItems(newItems);
+            await AsyncStorage.setItem('inventory', JSON.stringify(newItems));
+            navigation.replace('Inventory');
+          },
+          style: 'destructive',
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   return (
-    <View style={styles.body}>
-      <KeyboardAwareScrollView
-        keyboardDismissMode="on-drag"
-        contentContainerStyle={styles.container}>
-        <View style={styles.authContent}>
-          <Text style={styles.title}>Update Item ({route?.item?.name})</Text>
+    <SafeAreaView style={styles.screen}>
+      <ScrollView>
+        <View style={styles.body}>
+          <KeyboardAwareScrollView
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={styles.container}>
+            <View style={styles.authContent}>
+              <Text style={styles.title}>
+                Update Item ({route?.item?.name})
+              </Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={styles.label}>Item name</Text>
+              </View>
+
+              <View style={styles.inputStyle}>
+                <TextInput
+                  style={{flex: 1}}
+                  placeholderTextColor={COLORS.gray}
+                  keyboardType="default"
+                  defaultValue={name}
+                  onChangeText={newName => {
+                    const updatedItem = {...route?.item, name: newName};
+                    setName(newName);
+                    setItems(
+                      items.map(item =>
+                        item.id === updatedItem.id ? updatedItem : item,
+                      ),
+                    );
+                  }}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={styles.label}>Total stock</Text>
+              </View>
+
+              <View style={styles.inputStyle}>
+                <TextInput
+                  style={{flex: 1}}
+                  placeholderTextColor={COLORS.gray}
+                  keyboardType="numeric"
+                  defaultValue={totalStock.toString()}
+                  onChangeText={newTotalStock =>
+                    setTotalStock(parseInt(newTotalStock))
+                  }
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={styles.label}>Price</Text>
+              </View>
+
+              <View style={styles.inputStyle}>
+                <TextInput
+                  style={{flex: 1}}
+                  placeholderTextColor={COLORS.gray}
+                  keyboardType="numeric"
+                  defaultValue={price.toString()}
+                  onChangeText={price => setPrice(parseInt(price))}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text style={styles.label}>Enter total stock</Text>
+              </View>
+
+              <View style={{...styles.inputStyle, height: 100}}>
+                <TextInput
+                  style={{flex: 1}}
+                  placeholderTextColor={COLORS.gray}
+                  keyboardType="numeric"
+                  defaultValue={description}
+                  onChangeText={description => setDescription(description)}
+                />
+              </View>
+            </View>
+            <View style={styles.inputContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleUpdateItem}>
+                <Text style={styles.btnLabel}>Update</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{...styles.button, opacity: 0.3}}
+                onPress={() => handleDeleteItem(route.item.id)}>
+                <Text style={styles.btnLabel}>Delete Item</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAwareScrollView>
         </View>
-
-        <View style={styles.inputContainer}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.label}>Item name</Text>
-          </View>
-
-          <View style={styles.inputStyle}>
-            <TextInput
-              style={{flex: 1}}
-              placeholderTextColor={COLORS.gray}
-              keyboardType="default"
-              defaultValue={name}
-              onChangeText={newName => {
-                const updatedItem = {...route?.item, name: newName};
-                setName(newName);
-                setItems(
-                  items.map(item =>
-                    item.id === updatedItem.id ? updatedItem : item,
-                  ),
-                );
-              }}
-            />
-          </View>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.label}>Total stock</Text>
-          </View>
-
-          <View style={styles.inputStyle}>
-            <TextInput
-              style={{flex: 1}}
-              placeholderTextColor={COLORS.gray}
-              keyboardType="numeric"
-              defaultValue={totalStock.toString()}
-              onChangeText={newTotalStock => setTotalStock(parseInt(newTotalStock))}
-              
-            />
-          </View>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.label}>Price</Text>
-          </View>
-
-          <View style={styles.inputStyle}>
-            <TextInput
-              style={{flex: 1}}
-              placeholderTextColor={COLORS.gray}
-              keyboardType="numeric"
-              defaultValue={price.toString()}
-              onChangeText={price => setPrice(parseInt(price))}
-            />
-          </View>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.label}>Enter total stock</Text>
-          </View>
-
-          <View style={{ ...styles.inputStyle, height: 100 }}>
-            <TextInput
-              style={{flex: 1}}
-              placeholderTextColor={COLORS.gray}
-              keyboardType="numeric"
-              defaultValue={description}
-              onChangeText={description => setDescription(description)}
-            />
-          </View>
-        </View>
-        <View style={styles.inputContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleUpdateItem}>
-            <Text style={styles.btnLabel}>Update</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TouchableOpacity
-            style={{...styles.button, opacity: 0.3}}
-            onPress={() => handleDeleteItem(route?.item.id)}>
-            <Text style={styles.btnLabel}>Delete Item</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAwareScrollView>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  body: {
+  screen: {
     flex: 1,
-    paddingBottom: 100,
+    backgroundColor: '#ffffff',
+  },
+  body: {
+    paddingBottom: SIZES.padding,
     paddingVertical: SIZES.padding,
-    backgroundColor: COLORS.white,
   },
   container: {
     flex: 1,
