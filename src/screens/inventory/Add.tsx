@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -11,13 +11,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {FONTS, SIZES, COLORS} from '../../constants';
 import { replaceScreen, ScreenProps } from '../../navigation/route';
-
+import { AuthContext } from '../../context/AuthContext';
 interface InventoryItem {
   id: string;
   name: string;
   totalStock: number;
   price: number;
   description: string;
+  createdBy: string | null;
+  createdDate: Date,
 }
 
 const Add: React.FC<ScreenProps> = ({ navigation }) => {
@@ -26,6 +28,8 @@ const Add: React.FC<ScreenProps> = ({ navigation }) => {
   const [totalStock, setTotalStock] = useState<string>('');
   const [price, setPrice] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+
+  const { userObject } = useContext(AuthContext);
 
   useEffect(() => {
     const loadItems = async () => {
@@ -65,8 +69,9 @@ const Add: React.FC<ScreenProps> = ({ navigation }) => {
       totalStock: parseInt(totalStock),
       price: parseInt(price),
       description,
+      createdBy: userObject,
+      createdDate: new Date()
     };
-
     // Update state and AsyncStorage
     setItems([...items, newItem]);
     await AsyncStorage.setItem(

@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 55,
     borderRadius: 6,
-    marginTop: SIZES.margin * 2,
+    marginTop: SIZES.margin,
     backgroundColor: COLORS.primary,
     borderColor: 'transparent',
     alignItems: 'center',
