@@ -1,24 +1,37 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {FONTS, SIZES} from '../constants';
+import {COLORS, FONTS, SIZES} from '../constants';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import { formatNumber } from '.';
 
 interface ItemProps {
   title: string;
-  quantity: number;
+  totalStock: number;
+  price: number;
   onPress: () => void;
 }
 
 export default function Item({
   title,
-  quantity,
+  totalStock,
+  price,
   onPress,
 }: ItemProps): JSX.Element {
   return (
     <TouchableOpacity style={styles.cardContainer} onPress={onPress}>
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardSub}>{quantity}</Text>
+        <View style={{ flex: 0.45 }}>
+          <Text style={styles.cardSub}>Name</Text>
+          <Text style={styles.cardTitle}>{title}</Text>
+        </View>
+        <View style={{ flex: 0.45 }}>
+          <Text style={styles.cardSub}>Price</Text>
+          <Text style={styles.cardTitle}>{formatNumber(price)}</Text>
+        </View>
+        <View style={{ flex: 0.1 }}>
+          <Text style={styles.cardSub}>Qty</Text>
+          <Text style={styles.cardTitle}>{formatNumber(totalStock)}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -48,5 +61,6 @@ const styles = StyleSheet.create({
   },
   cardSub: {
     ...FONTS.body5,
+    color: COLORS.gray,
   },
 });

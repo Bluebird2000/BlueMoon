@@ -16,7 +16,8 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 interface InventoryItem {
   id: string;
   name: string;
-  quantity: number;
+  totalStock: number;
+  price: number;
 }
 
 type InventoryProps = {
@@ -58,7 +59,8 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
   const renderItem = ({item}: {item: InventoryItem}): JSX.Element => (
     <Item
       title={item.name}
-      quantity={item.quantity}
+      totalStock={item.totalStock}
+      price={item.price}
       onPress={() => navigation.navigate('Update', {item})}
     />
   );

@@ -19,31 +19,40 @@ import {FONTS, SIZES, COLORS} from '../../constants';
 interface InventoryItem {
   id: string;
   name: string;
-  quantity: number;
+  totalStock: number;
+  price: number;
+  description: string;
 }
 
-type UpdateInventoryProps = {
-  navigation: NavigationProp<any>;
-};
 
 const Update = (): JSX.Element => {
   const navigation = useNavigation();
   const route = useRoute().params;
   const [items, setItems] = useState<InventoryItem[]>([]);
-  const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState<number>(0);
+  const [name, setName] = useState(route.item.name);
+  const [totalStock, setTotalStock] = useState<number>(route.item.totalStock);
+  const [price, setPrice] = useState<number>(route.item.price);
+  const [description, setDescription] = useState<string>(route.item.description);
+
+
+  const loadItems = async (): Promise<void> => {
+    const storedItems = await AsyncStorage.getItem('inventory');
+    if (storedItems !== null) {
+      setItems(JSON.parse(storedItems));
+    } else {
+      setItems([]);
+    }
+  };
 
   useEffect(() => {
-    async function loadItems() {
-      const storedItems = await AsyncStorage.getItem('inventory');
-      if (storedItems) {
-        setItems(JSON.parse(storedItems));
-      }
-    }
     loadItems();
   }, []);
 
   const handleUpdateItem = async () => {
+    if (!name) {
+      return Alert.alert('Name is required');
+    }
+
     const isItemNameExist = items.some(
       item => item.name === name && item.id !== route?.item?.id,
     );
@@ -51,12 +60,26 @@ const Update = (): JSX.Element => {
       return Alert.alert('Item name must be unique');
     }
 
+    if (!totalStock || isNaN(totalStock)) {
+      return Alert.alert('Total stock is required and must be a number');
+    }
+
+    if (!price || isNaN(price)) {
+      return Alert.alert('Price is required and must be a number');
+    }
+
+    if (!description || description.trim().split(' ').length < 3) {
+      return Alert.alert('Description is required and must have at least three words');
+    }
+
     const updatedItems = items.map(item => {
       if (item.id === route?.item?.id) {
         return {
           ...item,
           name,
-          quantity: parseInt(quantity),
+          totalStock: parseInt(totalStock),
+          price: parseFloat(price.toFixed(2)),
+          description,
         };
       } else {
         return item;
@@ -86,16 +109,15 @@ const Update = (): JSX.Element => {
 
         <View style={styles.inputContainer}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.label}>Enter item name</Text>
+            <Text style={styles.label}>Item name</Text>
           </View>
 
           <View style={styles.inputStyle}>
             <TextInput
               style={{flex: 1}}
-              placeholder="Enter item name"
               placeholderTextColor={COLORS.gray}
               keyboardType="default"
-              value={name}
+              defaultValue={name}
               onChangeText={newName => {
                 const updatedItem = {...route?.item, name: newName};
                 setName(newName);
@@ -105,6 +127,55 @@ const Update = (): JSX.Element => {
                   ),
                 );
               }}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={styles.label}>Total stock</Text>
+          </View>
+
+          <View style={styles.inputStyle}>
+            <TextInput
+              style={{flex: 1}}
+              placeholderTextColor={COLORS.gray}
+              keyboardType="numeric"
+              defaultValue={totalStock.toString()}
+              onChangeText={newTotalStock => setTotalStock(parseInt(newTotalStock))}
+              
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={styles.label}>Price</Text>
+          </View>
+
+          <View style={styles.inputStyle}>
+            <TextInput
+              style={{flex: 1}}
+              placeholderTextColor={COLORS.gray}
+              keyboardType="numeric"
+              defaultValue={price.toString()}
+              onChangeText={price => setPrice(parseInt(price))}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={styles.label}>Enter total stock</Text>
+          </View>
+
+          <View style={{ ...styles.inputStyle, height: 100 }}>
+            <TextInput
+              style={{flex: 1}}
+              placeholderTextColor={COLORS.gray}
+              keyboardType="numeric"
+              defaultValue={description}
+              onChangeText={description => setDescription(description)}
             />
           </View>
         </View>
@@ -156,7 +227,7 @@ const styles = StyleSheet.create({
   inputStyle: {
     flexDirection: 'row',
     height: 55,
-    paddingHorizontal: SIZES.padding,
+    paddingHorizontal: SIZES.radius,
     marginTop: SIZES.base,
     borderRadius: SIZES.radius / 2,
     backgroundColor: COLORS.lightGray,

@@ -5,24 +5,29 @@ import {
   View,
   Text,
   TextInput,
-  Alert
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {FONTS, SIZES, COLORS} from '../../constants';
+import {Error} from '../../components';
 
 interface InventoryItem {
   id: string;
   name: string;
-  quantity: number;
+  totalStock: number;
+  price: number;
+  description: string;
 }
 
 const Add: React.FC = () => {
   const navigation = useNavigation();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [name, setName] = useState<string>('');
-  const [quantity, setQuantity] = useState<string>('');
+  const [totalStock, setTotalStock] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
 
   useEffect(() => {
     const loadItems = async () => {
@@ -35,19 +40,41 @@ const Add: React.FC = () => {
   }, []);
 
   const handleAddItem = async () => {
-
+    // Check if item name already exists
     const isItemNameExist = items.some(item => item.name === name);
     if (isItemNameExist) {
       return Alert.alert('Item name must be unique');
     }
 
+    // Validate fields
+    if (!name.trim()) {
+      return Alert.alert('Please enter a valid item name');
+    }
+    if (!totalStock.trim() || isNaN(parseInt(totalStock))) {
+      return Alert.alert('Please enter a valid totalStock');
+    }
+    if (!price.trim() || isNaN(parseInt(price))) {
+      return Alert.alert('Please enter a valid price');
+    }
+    if (!description.trim()) {
+      return Alert.alert('Please enter a description');
+    }
+
+    // Create new item object
     const newItem: InventoryItem = {
       id: Math.random().toString(),
       name,
-      quantity: parseInt(quantity),
+      totalStock: parseInt(totalStock),
+      price: parseInt(price),
+      description,
     };
+
+    // Update state and AsyncStorage
     setItems([...items, newItem]);
-    await AsyncStorage.setItem('inventory', JSON.stringify([...items, newItem]));
+    await AsyncStorage.setItem(
+      'inventory',
+      JSON.stringify([...items, newItem]),
+    );
     navigation.replace('Inventory');
   };
 
@@ -67,8 +94,7 @@ const Add: React.FC = () => {
 
           <View style={styles.inputStyle}>
             <TextInput
-              style={{flex: 1}}
-              placeholder="Item Name"
+              style={styles.input}
               placeholderTextColor={COLORS.gray}
               keyboardType="default"
               value={name}
@@ -78,17 +104,46 @@ const Add: React.FC = () => {
         </View>
         <View style={styles.inputContainer}>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.label}>Quantity</Text>
+            <Text style={styles.label}>Total Stock</Text>
           </View>
 
           <View style={styles.inputStyle}>
             <TextInput
-              style={{flex: 1}}
-              placeholder="Quanitiy"
+              style={styles.input}
               placeholderTextColor={COLORS.gray}
               keyboardType="numeric"
-              value={quantity}
-              onChangeText={setQuantity}
+              value={totalStock}
+              onChangeText={setTotalStock}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={styles.label}>Price</Text>
+          </View>
+          <View style={styles.inputStyle}>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={COLORS.gray}
+              keyboardType="numeric"
+              value={price}
+              onChangeText={setPrice}
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={styles.label}>Description</Text>
+          </View>
+          <View style={{...styles.inputStyle, height: 100}}>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor={COLORS.gray}
+              keyboardType="default"
+              value={description}
+              onChangeText={setDescription}
             />
           </View>
         </View>
@@ -133,11 +188,12 @@ const styles = StyleSheet.create({
   inputStyle: {
     flexDirection: 'row',
     height: 55,
-    paddingHorizontal: SIZES.padding,
+    paddingHorizontal: SIZES.radius,
     marginTop: SIZES.base,
     borderRadius: SIZES.radius / 2,
     backgroundColor: COLORS.lightGray,
   },
+  input: {flex: 1},
   label: {color: COLORS.gray, ...FONTS.body4},
   btnLabel: {
     color: COLORS.white,
