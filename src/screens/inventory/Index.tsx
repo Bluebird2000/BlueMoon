@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS, FONTS, SIZES} from '../../constants';
 import {Header, Categories, Item} from '../../components';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import { AuthContext } from '../../context/AuthContext';
+import {AuthContext} from '../../context/AuthContext';
 
 interface InventoryItem {
   id: string;
@@ -25,9 +25,9 @@ type InventoryProps = {
   navigation: NavigationProp<any>;
 };
 
-const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
+const Dashboard = ({navigation}: InventoryProps): JSX.Element => {
   const [items, setItems] = useState<InventoryItem[]>([]);
-  const { userObject, signOut } = useContext(AuthContext);
+  const {userObject, signOut} = useContext(AuthContext);
 
   const loadItems = async (): Promise<void> => {
     const storedItems = await AsyncStorage.getItem('inventory');
@@ -40,8 +40,8 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
 
   const handleLogout = async () => {
     signOut();
-    navigation.navigate('Auth')
-  }
+    navigation.navigate('Auth');
+  };
 
   useEffect(() => {
     loadItems();
@@ -58,9 +58,19 @@ const Dashboard = ({ navigation} : InventoryProps): JSX.Element => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header user={userObject} onPress={handleLogout}/>
+      <Header user={userObject} onPress={handleLogout} />
       <ScrollView>
         <View style={styles.body}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={styles.section}>
+              <Text style={{ ...styles.header, color: COLORS.white }}>Categories</Text>
+              <Text style={{ ...styles.header, color: COLORS.white, fontSize: 18 }}>4</Text>
+            </View>
+            <View style={{...styles.section, backgroundColor: '#49A2E4'}}>
+              <Text style={{ ...styles.header, color: COLORS.white }}>Items</Text>
+              <Text style={{ ...styles.header, color: COLORS.white, fontWeight: '700', fontSize: 18  }}>{items.length}</Text>
+            </View>
+          </View>
           <View style={styles.wrapper}>
             <Text style={styles.header}>Categories</Text>
           </View>
@@ -118,6 +128,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  section: {
+    backgroundColor: '#046CDB',
+    flex: 0.48,
+    height: 124,
+    borderRadius: SIZES.radius,
+    marginBottom: SIZES.margin,
+    justifyContent: 'center',
+    paddingLeft: SIZES.padding,
+  },
   header: {
     ...FONTS.body4,
     color: COLORS.primary,
@@ -143,7 +162,7 @@ const styles = StyleSheet.create({
     ...FONTS.body4,
   },
   emptyItemWrap: {
-    height: SIZES.height / 2,
+    height: SIZES.height / 2.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
