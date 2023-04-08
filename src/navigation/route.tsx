@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
-import * as React from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { AuthStack, InventoryStack } from '.';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -10,6 +10,10 @@ const { Navigator, Screen } = Stack;
 type RootStackParamList = {
   Auth: undefined;
   Inventory: undefined;
+};
+
+export type ScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'Inventory'>;
 };
 
 const Router: React.FC = (props) => {
@@ -25,6 +29,14 @@ const Router: React.FC = (props) => {
       </Navigator>
     </NavigationContainer>
   );
+};
+
+export const replaceScreen = (
+  navigation: StackNavigationProp<RootStackParamList>,
+  name: keyof RootStackParamList,
+  params?: object,
+) => {
+  navigation.replace(name);
 };
 
 export default Router;

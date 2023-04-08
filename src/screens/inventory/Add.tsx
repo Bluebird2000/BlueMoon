@@ -8,10 +8,9 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {FONTS, SIZES, COLORS} from '../../constants';
-import {Error} from '../../components';
+import { replaceScreen, ScreenProps } from '../../navigation/route';
 
 interface InventoryItem {
   id: string;
@@ -21,8 +20,7 @@ interface InventoryItem {
   description: string;
 }
 
-const Add: React.FC = () => {
-  const navigation = useNavigation();
+const Add: React.FC<ScreenProps> = ({ navigation }) => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [name, setName] = useState<string>('');
   const [totalStock, setTotalStock] = useState<string>('');
@@ -75,7 +73,8 @@ const Add: React.FC = () => {
       'inventory',
       JSON.stringify([...items, newItem]),
     );
-    navigation.replace('Inventory');
+    // navigation.replace('Inventory');
+    replaceScreen(navigation, 'Inventory', { screenProps: { } })
   };
 
   return (

@@ -10,12 +10,9 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  NavigationProp,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {replaceScreen, ScreenProps} from '../../navigation/route';
 import {FONTS, SIZES, COLORS} from '../../constants';
 
 interface InventoryItem {
@@ -26,9 +23,13 @@ interface InventoryItem {
   description: string;
 }
 
-const Update = (): JSX.Element => {
-  const navigation = useNavigation();
-  const route = useRoute().params;
+interface RouteParams {
+  item: InventoryItem;
+  // add other properties here if needed
+}
+
+const Update: React.FC<ScreenProps> = ({navigation}) => {
+  const route = useRoute().params as RouteParams;
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [name, setName] = useState(route.item.name);
   const [totalStock, setTotalStock] = useState<number>(route.item.totalStock);
@@ -70,18 +71,12 @@ const Update = (): JSX.Element => {
       return Alert.alert('Price is required and must be a number');
     }
 
-    if (!description || description.trim().split(' ').length < 3) {
-      return Alert.alert(
-        'Description is required and must have at least three words',
-      );
-    }
-
     const updatedItems = items.map(item => {
       if (item.id === route?.item?.id) {
         return {
           ...item,
           name,
-          totalStock: parseInt(totalStock),
+          totalStock: Number(totalStock),
           price: parseFloat(price.toFixed(2)),
           description,
         };
@@ -92,7 +87,7 @@ const Update = (): JSX.Element => {
 
     setItems(updatedItems);
     await AsyncStorage.setItem('inventory', JSON.stringify(updatedItems));
-    navigation.replace('Inventory');
+    replaceScreen(navigation, 'Inventory', {screenProps: {}});
   };
 
   const handleDeleteItem = async (id: string): Promise<void> => {
@@ -110,7 +105,7 @@ const Update = (): JSX.Element => {
             const newItems = items.filter(item => item.id !== id);
             setItems(newItems);
             await AsyncStorage.setItem('inventory', JSON.stringify(newItems));
-            navigation.replace('Inventory');
+            replaceScreen(navigation, 'Inventory', {screenProps: {}});
           },
           style: 'destructive',
         },
